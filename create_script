@@ -19,8 +19,8 @@ if [[ -e $filename ]]; then
 	exit 1
 fi
 
-if type "$scriptname"; then
-	echo "There is already a commnd with name ${scriptname}"
+if type "$scriptname" > /dev/null 2>&1; then
+	echo "There is already a command with name ${scriptname}"
 	exit 1
 fi
 
@@ -50,5 +50,4 @@ else
 	echo "Script created; not starting editor because \$EDITOR is not set"
 fi
 
-echo "End of code reached"
 exit 0

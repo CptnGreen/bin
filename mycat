@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Description: simple implementation of cat utility
+# Author: slisandr
+
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <"$1"

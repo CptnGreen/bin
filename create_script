@@ -6,23 +6,15 @@
 
 # Is there an argument?
 if [[ ! $1 ]]; then
-	echo "Missing argument"
+	echo "Missing argument" >&2
 	exit 1
 fi
-
-scriptname="$1"
-bindir="${HOME}/bin"
-filename="${bindir}/${scriptname}"
-
-if [[ -e $filename ]]; then
-	echo "File ${filename} already exists"
-	exit 1
+declare open_editor=""
+if [[ $# -eq 1 ]]; then
+	open_editor="true"
 fi
 
-if type "$scriptname" > /dev/null 2>&1; then
-	echo "There is already a command with name ${scriptname}"
-	exit 1
-fi
+declare -r bindir="${HOME}/bin"
 
 # Check if bin directory exists
 if [[ ! -d $bindir ]]; then
@@ -35,19 +27,43 @@ if [[ ! -d $bindir ]]; then
 	fi
 fi
 
-# Create a script with some lines:
-echo '#!/bin/bash' > "$filename"
-echo '' >> "$filename"
-echo '# Description:' >> "$filename"
-echo '# Author: slisandr' >> "$filename"
+while [[ $1 ]]; do
+	scriptname="$1"
+	filename="${bindir}/${scriptname}"
 
-# Add executable permission
-chmod u+x "$filename"
+	if [[ -e $filename ]]; then
+		echo "File ${filename} already exists" >&2
+		shift
+		continue
+	fi
+
+	if type "$scriptname" > /dev/null 2>&1; then
+		echo "There is already a command with name ${scriptname}" >&2
+		shift
+		continue
+	fi
+
+	# Create a script with some lines:
+	echo '#!/bin/bash' > "$filename"
+	echo '' >> "$filename"
+	echo '# Author: slisandr' >> "$filename"
+	echo '# Description:' >> "$filename"
+
+	# Add executable permission
+	chmod u+x "$filename"
+
+	shift
+done
+
+
 # Open with editor
-if [[ $EDITOR ]]; then
-	$EDITOR "$filename"
-else
-	echo "Script created; not starting editor because \$EDITOR is not set"
+if [[ $open_editor ]]; then
+	echo "Opening"
+	if [[ $EDITOR ]]; then
+		$EDITOR "$filename"
+	else
+		echo "Script created; not starting editor because \$EDITOR is not set"
+	fi
 fi
 
 exit 0
